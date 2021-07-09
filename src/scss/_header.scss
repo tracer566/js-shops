@@ -36,8 +36,11 @@
         height: 100%;
         cursor: pointer;
         transition: background-color 0.3s;
+        padding-right: 4px;
+        padding-left: 4px;
         &:hover {
             background-color: #0060d2;
+    
         }
         @media (max-width: 768px) {
             display: none;
