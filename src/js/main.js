@@ -12,6 +12,14 @@ headerCityBtn.textContent = localStorage.getItem('lomoda-location') || 'Ваш �
 
 headerCityBtn.addEventListener('click', () => {
   const city = prompt('Укажите ваш город');
-  headerCityBtn.textContent = city
-  localStorage.setItem('lomoda-location',city)
+  //условие при кнопке "Отмена" в prompt,и если в данные попадает null
+  if(city && city !== null){
+      headerCityBtn.textContent = city
+      localStorage.setItem('lomoda-location',city)
+  } else {
+    headerCityBtn.textContent = 'Ваш город?'
+  }
 });
+
+const footerLink = document.querySelectorAll('.footer__link')[0]
+console.log(footerLink.getAttribute('href'))
