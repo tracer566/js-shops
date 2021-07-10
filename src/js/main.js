@@ -2,6 +2,8 @@ const headerCityBtn = document.querySelector('.header__city-button');
 
 if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
   headerCityBtn.textContent = localStorage.getItem('lomoda-location')
+} else if(localStorage.getItem('lomoda-location') === null) {
+  headerCityBtn.textContent = "Ваш город?"
 } else {
   headerCityBtn.textContent = "Ваш город?"
 }
