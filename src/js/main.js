@@ -1,11 +1,13 @@
 const headerCityBtn = document.querySelector('.header__city-button');
 
-// if(localStorage.getItem('lomoda-location')){
-//   headerCityBtn.textContent = localStorage.getItem('lomoda-location')
-// }
+if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
+  headerCityBtn.textContent = localStorage.getItem('lomoda-location')
+} else {
+  headerCityBtn.textContent = "Ваш город?"
+}
 
 //тернарный оператор укорачивает условие выше
-headerCityBtn.textContent = localStorage.getItem('lomoda-location') || 'Ваш город?'
+// headerCityBtn.textContent = localStorage.getItem('lomoda-location') && 'Ваш город?'
 
 // let save = localStorage.getItem('lomoda-location');
 // console.log('save',save);
