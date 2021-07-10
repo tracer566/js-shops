@@ -1,15 +1,16 @@
 const headerCityBtn = document.querySelector('.header__city-button');
 
-if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
-  headerCityBtn.textContent = localStorage.getItem('lomoda-location')
-} else if(localStorage.getItem('lomoda-location') === null) {
-  headerCityBtn.textContent = "Ваш город?"
-} else {
-  headerCityBtn.textContent = "Ваш город?"
-}
+// if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
+//   headerCityBtn.textContent = localStorage.getItem('lomoda-location')
+// } else if(localStorage.getItem('lomoda-location') === null) {
+//   headerCityBtn.textContent = "Ваш город?"
+// } else {
+//   headerCityBtn.textContent = "Ваш город?"
+// }
 
 //тернарный оператор укорачивает условие выше
-// headerCityBtn.textContent = localStorage.getItem('lomoda-location') && 'Ваш город?'
+let localCity = localStorage.getItem('lomoda-location')
+headerCityBtn.textContent = localCity && localCity !== null ? localStorage.getItem('lomoda-location') : localCity === null ? "Ваш город?" : "Ваш город?"
 
 // let save = localStorage.getItem('lomoda-location');
 // console.log('save',save);
