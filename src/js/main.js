@@ -106,3 +106,127 @@ modal.addEventListener('click',event => {
   }
 })
 
+/* ненужный код */
+// let x = 0
+// let insert = setInterval(function(){
+// console.log(++x)
+// },5000)
+
+// setInterval(function(){
+//   clearInterval(insert)
+// },25000)
+
+
+// Два варианта добавления данных
+// localStorage.userName = "Петя"
+// localStorage.setItem("favoriteColor", "чёрный")
+
+// После добавления в localStorage, они будут там
+// до тех пор, пока их явно не удалить
+// console.log(`${localStorage.userName} предпочитает ${localStorage.favoriteColor} цвет.`);
+
+// А теперь удалим данные из хранилища
+// localStorage.removeItem("userName")
+// localStorage.removeItem("favoriteColor")
+
+// CLIENT => SERVER => DATABASE => SERVER => CLIENT
+// console.log('Клиент: хочу получить список пользователей')
+// console.log('...')
+
+// setTimeout(function(){
+//   console.log('Сервер: запрашиваю вывод пользователей у Базы Данных')
+//   console.log('...')
+//   setTimeout(()=>{
+//     console.log('База данных : формирую список пользователей и отдаю серверу')
+//     console.log('...')
+//     setTimeout(() => {
+//     console.log('Сервер : трансформирую данные для клиента')
+//     console.log('...')
+//     setTimeout(()=>{
+//       console.log('Клиент:получил данные и отображаю их')
+//     },2000)
+//     },1000)
+//   },1000)
+// },2000)
+
+// callback простой пример
+// function test(age,back){
+//   console.log('Мне '+ age + ' Лет')
+//  back()
+// }
+// test(355, function(){
+// console.log('Сработала 2-ая функция')
+// })
+
+/* ненужный код */
+
+// запрос базы данных,универсальная функция
+const getData = async () => {
+  const data = await fetch('db.json')
+  // console.log('data: ', data)
+  if(data.ok){
+    return data.json()
+  } else {
+    throw new Error(`Данные не были получены потому что вы дебил,статус ошибки ${data.status} ${data.statusText}`)
+  }
+
+}
+// getData()
+// console.log('getData(): ', getData())
+
+// запрос базы данных, функция для товаров
+const getGoods = (callback) => {
+// обработка ошибок и обработка функции,вывод массива
+  getData()
+  .then(data => {
+    console.log('Вызов даты:',data)
+    callback(data)
+  })
+  .catch(err => {
+    console.error(err)
+    console.warn('Сервер недоступен')
+    })
+}
+
+getGoods((data) => {
+  console.warn(data)
+})
+
+// try{
+//   const goodsList = document.querySelector('.goods__list')
+//   if(!goodsList){
+//     throw 'Это не страница с товарами'
+//   }
+
+//   //функция получающая данные и формирующая карточки товаров
+//   const createdCard = data => {
+//     const li = document.createElement('li')
+
+//     li.classList.add('goods__item')
+
+//     li.innerHTML = `
+//       <article class="good">
+//       <a class="good__link-img" href="card-good.html#id56454">
+//           <img class="good__img" src="goods-image/AD002EMLUEA8_14164246_1_v1.jpg" alt="">
+//       </a>
+//       <div class="good__description">
+//           <p class="good__price">2890 &#8381;</p>
+//           <h3 class="good__title">Eazyway <span class="good__title__grey">/ Тайтсы</span></h3>
+//           <p class="good__sizes">Размеры (RUS): <span class="good__sizes-list">40 42 44 46</span></p>
+//           <a class="good__link" href="card-good.html#id56454">Подробнее</a>
+//       </div>
+//       </article>
+//     `
+//     return li
+//   }
+
+//   /* функция рендера карточек товара */
+//   const renderGoodsList = (data) => {
+//     console.log('data 226',data)
+//   }
+
+//   getGoods(renderGoodsList)
+
+// } catch(err){
+//   console.warn(err)
+// }
