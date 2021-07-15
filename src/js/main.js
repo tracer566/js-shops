@@ -1,5 +1,10 @@
 const headerCityBtn = document.querySelector('.header__city-button');
 
+/* определение хэша страницы */
+let hash = location.hash.substr(1)
+console.log('hash: ', hash)
+
+
 // if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
 //   headerCityBtn.textContent = localStorage.getItem('lomoda-location')
 // } else if(localStorage.getItem('lomoda-location') === null) {
@@ -26,13 +31,6 @@ headerCityBtn.addEventListener('click', () => {
   }
 });
 
-//смена атрибутов
-const footerLink = document.querySelectorAll('.footer__link')[0]
-let attr = footerLink.getAttribute('href')
-let link = footerLink.setAttribute('href','https://www.youtube.com/watch?v=KDCOXFCoWEI')//меняю старую
-footerLink.setAttribute('target','_blank') //добавляю новый атрибут
-console.log(footerLink.getAttribute('href'))
-
 /* непонятные свойства внес в переменные */
 // document.body.offsetWidth обращение к документу в ширину не входит скролл поэтому 1349px
 //  const widthScrool = document.body.offsetWidth 
@@ -42,7 +40,6 @@ console.log(footerLink.getAttribute('href'))
 // const scroolWay2 = document.body.dbScroolY
 // console.log('scroolWay2: ', scroolWay2)
 
- 
 //блокировка скролла
 const disableScrool = () => {
  const widthScrool = window.innerWidth - document.body.offsetWidth 
@@ -59,14 +56,12 @@ document.body.style.cssText = `
   position: fixed;
   width: 100%;
   height: 100vh; 
-
 `
 /* 
 position: fixed *
   width: 100%;
   height: 100vh; для кроссбраузерности и айфонов
    */
-
 }
 
 const enableScrool = () => {
@@ -78,8 +73,6 @@ const enableScrool = () => {
   window.scrollTo({
     top:document.body.dbScroolY
   })
-
-
 }
 //блокировка скролла
 
@@ -107,6 +100,13 @@ modal.addEventListener('click',event => {
 })
 
 /* ненужный код */
+//смена атрибутов
+// const footerLink = document.querySelectorAll('.footer__link')[0]
+// let attr = footerLink.getAttribute('href')
+// let link = footerLink.setAttribute('href','https://www.youtube.com/watch?v=KDCOXFCoWEI')//меняю старую
+// footerLink.setAttribute('target','_blank') //добавляю новый атрибут
+// console.log(footerLink.getAttribute('href'))
+
 // let x = 0
 // let insert = setInterval(function(){
 // console.log(++x)
@@ -175,12 +175,27 @@ const getData = async () => {
 // console.log('getData(): ', getData())
 
 // запрос базы данных, функция для товаров
-const getGoods = (callback) => {
+const getGoods = (callback,value) => {
 // обработка ошибок и обработка функции,вывод массива
-  getData()
+  getData()//вызов 2-ой функции,ключевая пока в callback и не вызоветься пока данные не будут получены
   .then(data => {
     console.log('Вызов даты:',data)
-    callback(data)
+    // стало:добавилось условие и фильтр по категориям
+    if(value){
+      callback(data.filter(item => item.category === value))
+    } else {
+      callback(data)
+    }
+
+    document.querySelector('.goods__title').textContent = value === 'men' 
+    ? 'Мужчинам' 
+    : value === 'woman'
+    ? 'Женщинам'
+    : value === 'kids'
+    ? 'Детям' 
+    : 'Женщинам'
+
+    // callback(data)/* было:вызываеться callback функция renderGoodsList и передаються данные в date,в этом месте функция выполнит свое действие */
   })
   .catch(err => {
     console.error(err)
@@ -192,41 +207,74 @@ getGoods((data) => {
   console.warn(data)
 })
 
-// try{
-//   const goodsList = document.querySelector('.goods__list')
-//   if(!goodsList){
-//     throw 'Это не страница с товарами'
-//   }
+try{
+  const goodsList = document.querySelector('.goods__list')
+  if(!goodsList){
+    throw 'Это не страница с товарами'
+  }
+  //функция получающая данные и формирующая карточки товаров
+  const createdCard = data => {
+    // console.log('после forEach, что получает эта функция',data)
+    /*деструктуризация вместо переменных ниже  */
+    const {id,photo,preview,cost,brand,category,name,sizes } = data
+    // const id = data.id
+    // const photo = data.photo
+    // const preview = data.preview
+    // const cost = data.cost
+    // const brand = data.brand
+    // const category = data.category
+    // const name = data.name
+    // const sizes = data.sizes
+    // console.log('sizes: ', sizes);
+    // console.log('category: ', category)
 
-//   //функция получающая данные и формирующая карточки товаров
-//   const createdCard = data => {
-//     const li = document.createElement('li')
+    const li = document.createElement('li')
+    li.classList.add('goods__item')
+    li.innerHTML = `
+      <article class="good">
+      <a class="good__link-img" href="card-good.html#${id}">
+          <img class="good__img" src="goods-image/${preview}" alt="">
+      </a>
+      <div class="good__description">
+          <p class="good__price">${cost} &#8381;</p>
+          <h3 class="good__title">${brand} <span class="good__title__grey">/ ${name}</span></h3>
+          ${sizes ? 
+            `<p class="good__sizes">Размеры (RUS): <span class="good__sizes-list">${sizes.join(" ")}</span></p>`
+            : ''}
+          <a class="good__link" href="card-good.html#${id}">Подробнее</a>
+      </div>
+      </article>
+    `
+    return li
+  }
 
-//     li.classList.add('goods__item')
+  /* функция рендера карточек товара */
+  const renderGoodsList = (data) => {
+    goodsList.textContent = ''
+    /* 1 способ перебора массива data */
+    // for(let i = 0;i < data.length;i++){
+    //   console.log('вывод через цикл for:',data[i])
+    // }
+/* 2 способ перебора массива data */
+    // for(const item of data){
+    //   console.log('вывод через цикл for/of:',item)
+    // }
+/* 3 способ перебора массива data */
+    data.forEach((elem,index,arr)=>{
+      // console.log('index:',index,'elem:',elem,'arr:',arr)
+      const card = createdCard(elem)
+      goodsList.append(card)
 
-//     li.innerHTML = `
-//       <article class="good">
-//       <a class="good__link-img" href="card-good.html#id56454">
-//           <img class="good__img" src="goods-image/AD002EMLUEA8_14164246_1_v1.jpg" alt="">
-//       </a>
-//       <div class="good__description">
-//           <p class="good__price">2890 &#8381;</p>
-//           <h3 class="good__title">Eazyway <span class="good__title__grey">/ Тайтсы</span></h3>
-//           <p class="good__sizes">Размеры (RUS): <span class="good__sizes-list">40 42 44 46</span></p>
-//           <a class="good__link" href="card-good.html#id56454">Подробнее</a>
-//       </div>
-//       </article>
-//     `
-//     return li
-//   }
+    })
+  }
 
-//   /* функция рендера карточек товара */
-//   const renderGoodsList = (data) => {
-//     console.log('data 226',data)
-//   }
+  window.addEventListener('hashchange',() => {
+    hash = location.hash.substr(1)
+    getGoods(renderGoodsList,hash)
+  })
 
-//   getGoods(renderGoodsList)
+   getGoods(renderGoodsList,hash)/* ключевая функция с нее идет цепочка,когда она получит данные с date то заработает */
 
-// } catch(err){
-//   console.warn(err)
-// }
+} catch(err){
+  console.warn(err)
+}
