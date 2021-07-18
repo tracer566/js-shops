@@ -4,26 +4,18 @@ const headerCityBtn = document.querySelector('.header__city-button');
 let hash = location.hash.substr(1)
 console.log('hash: ', hash)
 
-
-// if(localStorage.getItem('lomoda-location') && (localStorage.getItem('lomoda-location')) !== null){
-//   headerCityBtn.textContent = localStorage.getItem('lomoda-location')
-// } else if(localStorage.getItem('lomoda-location') === null) {
-//   headerCityBtn.textContent = "Ваш город?"
-// } else {
-//   headerCityBtn.textContent = "Ваш город?"
-// }
-
 //тернарный оператор укорачивает условие выше
 let localCity = localStorage.getItem('lomoda-location')
-headerCityBtn.textContent = localCity && localCity !== null ? localStorage.getItem('lomoda-location') : localCity === null ? "Ваш город?" : "Ваш город?"
+headerCityBtn.textContent = localCity && localCity !== null 
+? localStorage.getItem('lomoda-location') : localCity === null ? "Ваш город?" : "Ваш город?"
 
 // let save = localStorage.getItem('lomoda-location');
 // console.log('save',save);
 
 headerCityBtn.addEventListener('click', () => {
-  const city = prompt('Укажите ваш город');
+  const city = prompt('Укажите ваш город')
   //условие при кнопке "Отмена" в prompt,и если в данные попадает null
-  if(city && city !== null){
+  if(city && city !== null && city.trim()){
       headerCityBtn.textContent = city
       localStorage.setItem('lomoda-location',city)
   } else {
@@ -42,7 +34,9 @@ headerCityBtn.addEventListener('click', () => {
 
 //блокировка скролла
 const disableScrool = () => {
+if(document.disableScrool) return
  const widthScrool = window.innerWidth - document.body.offsetWidth 
+ document.disableScrool = true
  document.body.dbScroolY = window.scrollY
  /* 1-й вариант написания */
 //  document.body.style.overflow = "hidden"
@@ -65,6 +59,7 @@ position: fixed *
 }
 
 const enableScrool = () => {
+  document.disableScrool = false
   document.body.style.overflow = ""
   /* 1-й вариант написания */
   // document.body.style.paddingRight = ""
@@ -99,75 +94,14 @@ modal.addEventListener('click',event => {
   }
 })
 
-/* ненужный код */
-//смена атрибутов
-// const footerLink = document.querySelectorAll('.footer__link')[0]
-// let attr = footerLink.getAttribute('href')
-// let link = footerLink.setAttribute('href','https://www.youtube.com/watch?v=KDCOXFCoWEI')//меняю старую
-// footerLink.setAttribute('target','_blank') //добавляю новый атрибут
-// console.log(footerLink.getAttribute('href'))
-
-// let x = 0
-// let insert = setInterval(function(){
-// console.log(++x)
-// },5000)
-
-// setInterval(function(){
-//   clearInterval(insert)
-// },25000)
-
-
-// Два варианта добавления данных
-// localStorage.userName = "Петя"
-// localStorage.setItem("favoriteColor", "чёрный")
-
-// После добавления в localStorage, они будут там
-// до тех пор, пока их явно не удалить
-// console.log(`${localStorage.userName} предпочитает ${localStorage.favoriteColor} цвет.`);
-
-// А теперь удалим данные из хранилища
-// localStorage.removeItem("userName")
-// localStorage.removeItem("favoriteColor")
-
-// CLIENT => SERVER => DATABASE => SERVER => CLIENT
-// console.log('Клиент: хочу получить список пользователей')
-// console.log('...')
-
-// setTimeout(function(){
-//   console.log('Сервер: запрашиваю вывод пользователей у Базы Данных')
-//   console.log('...')
-//   setTimeout(()=>{
-//     console.log('База данных : формирую список пользователей и отдаю серверу')
-//     console.log('...')
-//     setTimeout(() => {
-//     console.log('Сервер : трансформирую данные для клиента')
-//     console.log('...')
-//     setTimeout(()=>{
-//       console.log('Клиент:получил данные и отображаю их')
-//     },2000)
-//     },1000)
-//   },1000)
-// },2000)
-
-// callback простой пример
-// function test(age,back){
-//   console.log('Мне '+ age + ' Лет')
-//  back()
-// }
-// test(355, function(){
-// console.log('Сработала 2-ая функция')
-// })
-
-/* ненужный код */
-
 // запрос базы данных,универсальная функция
-const getData = async () => {
-  const data = await fetch('db.json')
-  // console.log('data: ', data)
+const getData = async (server) => {
+  const data = await fetch(server)
+  console.log('data fetch: ', data)
   if(data.ok){
     return data.json()
   } else {
-    throw new Error(`Данные не были получены потому что вы дебил,статус ошибки ${data.status} ${data.statusText}`)
+    throw new Error(`Данные с сервера не были получены,статус ошибки ${data.status} ${data.statusText}`)
   }
 
 }
@@ -177,7 +111,7 @@ const getData = async () => {
 // запрос базы данных, функция для товаров
 const getGoods = (callback,value) => {
 // обработка ошибок и обработка функции,вывод массива
-  getData()//вызов 2-ой функции,ключевая пока в callback и не вызоветься пока данные не будут получены
+  getData('db.json')//вызов 2-ой функции,ключевая пока в callback и не вызоветься пока данные не будут получены
   .then(data => {
     console.log('Вызов даты:',data)
     // стало:добавилось условие и фильтр по категориям
@@ -187,7 +121,12 @@ const getGoods = (callback,value) => {
       callback(data)
     }
 
-    document.querySelector('.goods__title').textContent = value === 'men' 
+    try{
+      let goodsTitle = document.querySelector('.goods__title')
+      if(!goodsTitle){
+    throw 'Это не страница с товарами 2'
+  }
+    goodsTitle.textContent = value === 'men' 
     ? 'Мужчинам' 
     : value === 'woman'
     ? 'Женщинам'
@@ -195,10 +134,14 @@ const getGoods = (callback,value) => {
     ? 'Детям' 
     : 'Женщинам'
 
+    }
+    catch{
+      console.log('Ошибка табов обработана')
+    }
     // callback(data)/* было:вызываеться callback функция renderGoodsList и передаються данные в date,в этом месте функция выполнит свое действие */
   })
   .catch(err => {
-    console.error(err)
+    console.error('err333',err)
     console.warn('Сервер недоступен')
     })
 }
@@ -217,16 +160,6 @@ try{
     // console.log('после forEach, что получает эта функция',data)
     /*деструктуризация вместо переменных ниже  */
     const {id,photo,preview,cost,brand,category,name,sizes } = data
-    // const id = data.id
-    // const photo = data.photo
-    // const preview = data.preview
-    // const cost = data.cost
-    // const brand = data.brand
-    // const category = data.category
-    // const name = data.name
-    // const sizes = data.sizes
-    // console.log('sizes: ', sizes);
-    // console.log('category: ', category)
 
     const li = document.createElement('li')
     li.classList.add('goods__item')
@@ -278,3 +211,11 @@ try{
 } catch(err){
   console.warn(err)
 }
+
+const arr = ['Фриланс','Воровство','Терроризм','Грабеж']
+
+console.log('arr',arr)
+console.log('arr join:',arr.join('#'))
+
+let hash2 = location
+console.log('hash2: ', hash2)
