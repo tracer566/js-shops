@@ -23,15 +23,6 @@ headerCityBtn.addEventListener('click', () => {
   }
 });
 
-/* непонятные свойства внес в переменные */
-// document.body.offsetWidth обращение к документу в ширину не входит скролл поэтому 1349px
-//  const widthScrool = document.body.offsetWidth 
-//  console.log('widthScrool: ', widthScrool)
-// const scroolWay = window.scrollY
-// console.log('scroolWay: ', scroolWay)
-// const scroolWay2 = document.body.dbScroolY
-// console.log('scroolWay2: ', scroolWay2)
-
 //блокировка скролла
 const disableScrool = () => {
 if(document.disableScrool) return
@@ -103,20 +94,19 @@ const getData = async (server) => {
   } else {
     throw new Error(`Данные с сервера не были получены,статус ошибки ${data.status} ${data.statusText}`)
   }
-
 }
 // getData()
 // console.log('getData(): ', getData())
 
 // запрос базы данных, функция для товаров
-const getGoods = (callback,value) => {
+const getGoods = (callback,prop,value) => {
 // обработка ошибок и обработка функции,вывод массива
   getData('db.json')//вызов 2-ой функции,ключевая пока в callback и не вызоветься пока данные не будут получены
   .then(data => {
     console.log('Вызов даты:',data)
     // стало:добавилось условие и фильтр по категориям
     if(value){
-      callback(data.filter(item => item.category === value))
+      callback(data.filter(item => item[prop] === value))
     } else {
       callback(data)
     }
@@ -126,13 +116,6 @@ const getGoods = (callback,value) => {
       if(!goodsTitle){
     throw 'Это не страница с товарами 2'
   }
-    goodsTitle.textContent = value === 'men' 
-    ? 'Мужчинам' 
-    : value === 'woman'
-    ? 'Женщинам'
-    : value === 'kids'
-    ? 'Детям' 
-    : 'Женщинам'
 
     }
     catch{
@@ -150,11 +133,20 @@ getGoods((data) => {
   console.warn(data)
 })
 
+
+// страница категорий товара
 try{
   const goodsList = document.querySelector('.goods__list')
   if(!goodsList){
     throw 'Это не страница с товарами'
   }
+
+  const goodsTitle = document.querySelector('.goods__title') 
+
+  const changeTitle = () => {
+    goodsTitle.textContent = document.querySelector(`[href*="#${hash}"]`).textContent
+  }
+
   //функция получающая данные и формирующая карточки товаров
   const createdCard = data => {
     // console.log('после forEach, что получает эта функция',data)
@@ -203,19 +195,72 @@ try{
 
   window.addEventListener('hashchange',() => {
     hash = location.hash.substr(1)
-    getGoods(renderGoodsList,hash)
+    getGoods(renderGoodsList,'category',hash)
+    changeTitle()
   })
 
-   getGoods(renderGoodsList,hash)/* ключевая функция с нее идет цепочка,когда она получит данные с date то заработает */
+  changeTitle()
+  getGoods(renderGoodsList,hash)/* ключевая функция с нее идет цепочка,когда она получит данные с date то заработает */
 
 } catch(err){
   console.warn(err)
 }
 
-const arr = ['Фриланс','Воровство','Терроризм','Грабеж']
 
-console.log('arr',arr)
-console.log('arr join:',arr.join('#'))
+//формирование страниц каждого товара
+try{
+  if(!document.querySelector('.card-good')){
+ throw "Это не страница карточки товара"
+  }
 
-let hash2 = location
-console.log('hash2: ', hash2)
+const cardGoodImage = document.querySelector('.card-good__image')
+const cardGoodBrand = document.querySelector('.card-good__brand')
+const cardGoodTitle = document.querySelector('.card-good__title')
+const cardGoodPrice = document.querySelector('.card-good__price')
+const cardGoodColor = document.querySelector('.card-good__color')
+const cardGoodColorList = document.querySelector('.card-good__color-list')
+const cardGoodSizes = document.querySelector('.card-good__sizes')
+const cardGoodSizesList = document.querySelector('.card-good__sizes-list')
+const cardGoodBuy = document.querySelector('.card-good__buy')
+const cardGoodSelectWrapper = document.querySelectorAll('.card-good__select__wrapper')
+
+
+const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
+    cardGoodImage.src = `goods-image/${photo}`
+    cardGoodImage.alt = `${brand} ${name}`
+    cardGoodBrand.textContent = brand
+    cardGoodTitle.textContent = name
+    cardGoodPrice.textContent = `${cost} р`
+    if(color)
+    {cardGoodColor.textContent = color[0]
+    } else {
+      cardGoodColor.style.display = "none"
+    }
+    if(sizes)
+    {cardGoodSizes.textContent = sizes[0]
+    } else {
+      cardGoodSizes.style.display = "none"
+    }
+}
+
+cardGoodSelectWrapper.forEach(item => {
+  item.addEventListener('click',e => {
+    const target = e.target
+    console.log(target)
+
+    //closest тоже что и classList.contains
+    if(target.closest('.card-good__select')){
+      target.classList.toggle('card-good__select__open')
+    }
+    
+  })
+
+})
+
+getGoods(renderCardGood,'id',hash)
+
+}
+catch(error){
+  console.log('error страницы товара:',error)
+}
+
