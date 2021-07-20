@@ -224,6 +224,9 @@ const cardGoodSizesList = document.querySelector('.card-good__sizes-list')
 const cardGoodBuy = document.querySelector('.card-good__buy')
 const cardGoodSelectWrapper = document.querySelectorAll('.card-good__select__wrapper')
 
+const generateList = data => data.reduce((html,item,i) => 
+html + `<li class="card-good__select-item" data-id="${i}">${item}</li>`,'')
+
 
 const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
     cardGoodImage.src = `goods-image/${photo}`
@@ -231,13 +234,15 @@ const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
     cardGoodBrand.textContent = brand
     cardGoodTitle.textContent = name
     cardGoodPrice.textContent = `${cost} р`
-    if(color)
-    {cardGoodColor.textContent = color[0]
+    if(color){
+      cardGoodColor.textContent = color[0]
+      cardGoodColorList.innerHTML = generateList(color)
     } else {
       cardGoodColor.style.display = "none"
     }
-    if(sizes)
-    {cardGoodSizes.textContent = sizes[0]
+    if(sizes){
+      cardGoodSizes.textContent = sizes[0]
+      cardGoodSizesList.innerHTML = generateList(sizes)
     } else {
       cardGoodSizes.style.display = "none"
     }
@@ -251,6 +256,13 @@ cardGoodSelectWrapper.forEach(item => {
     //closest тоже что и classList.contains
     if(target.closest('.card-good__select')){
       target.classList.toggle('card-good__select__open')
+    }
+
+    if(target.closest('.card-good__select-item')){
+      const cardGoodSelect = item.querySelector('.card-good__select')
+      cardGoodSelect.textContent = target.textContent
+      cardGoodSelect.dataset.id = target.dataset.id
+      cardGoodSelect.classList.remove('card-good__select__open')
     }
     
   })
