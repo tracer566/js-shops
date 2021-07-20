@@ -224,8 +224,8 @@ const cardGoodSizesList = document.querySelector('.card-good__sizes-list')
 const cardGoodBuy = document.querySelector('.card-good__buy')
 const cardGoodSelectWrapper = document.querySelectorAll('.card-good__select__wrapper')
 
-const generateList = data => data.reduce((html,item,i) => 
-html + `<li class="card-good__select-item" data-id="${i}">${item}</li>`,'')
+const generateList = data => data.reduce((html,item,i) => html + 
+`<li class="card-good__select-item" data-id="${i}">${item}</li>`,'')
 
 
 const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
@@ -236,12 +236,14 @@ const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
     cardGoodPrice.textContent = `${cost} р`
     if(color){
       cardGoodColor.textContent = color[0]
+      cardGoodColor.dataset.id = 0
       cardGoodColorList.innerHTML = generateList(color)
     } else {
       cardGoodColor.style.display = "none"
     }
     if(sizes){
       cardGoodSizes.textContent = sizes[0]
+      cardGoodSizes.dataset.id = 0
       cardGoodSizesList.innerHTML = generateList(sizes)
     } else {
       cardGoodSizes.style.display = "none"
