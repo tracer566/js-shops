@@ -1,14 +1,16 @@
-const headerCityBtn = document.querySelector('.header__city-button');
+const headerCityBtn = document.querySelector('.header__city-button')
+const cartListGoods = document.querySelector('.cart__list-goods')
+const cartTotalCost = document.querySelector('.cart__total-cost');
 
 /* определение хэша страницы */
-let hash = location.hash.substr(1)
+let hash = location.hash.substring(1)
 console.log('hash: ', hash)
 
 //тернарный оператор укорачивает условие выше
 let localCity = localStorage.getItem('lomoda-location')
 headerCityBtn.textContent = localCity && localCity !== null 
 ? localStorage.getItem('lomoda-location') : localCity === null ? "Ваш город?" : "Ваш город?"
-
+ 
 // let save = localStorage.getItem('lomoda-location');
 // console.log('save',save);
 
@@ -21,7 +23,49 @@ headerCityBtn.addEventListener('click', () => {
   } else {
     headerCityBtn.textContent = 'Ваш город?'
   }
-});
+})
+
+const getLocalStorage = () => JSON?.parse(localStorage.getItem('cart-lomoda')) || []
+const setLocalStorage = data => localStorage.setItem('cart-lomoda',JSON.stringify(data))
+
+const renderCart = () => {
+  cartListGoods.textContent = ''
+
+  const cartItems = getLocalStorage()
+
+  let totalPrice = 0
+
+  cartItems.forEach((item,i) => {
+  
+    const tr = document.createElement('tr')
+  
+    tr.innerHTML =
+    `
+    <td>${i+1}</td>
+    <td>${item.brand} ${item.name}</td>
+    ${item.color ? `<td>${item.color}</td>` : ' <td>-</td>'}
+    ${item.sizes ? `<td>${item.sizes}</td>` : ' <td>-</td>'}
+    <td>${item.cost} &#8381;</td>
+    <td><button class="btn-delete" data-id = "${item.id}">&times;</button></td>
+     `
+     totalPrice += item.cost
+     cartListGoods.append(tr)
+  })
+  cartTotalCost.textContent = totalPrice + ' ₽'
+} 
+
+const deleteItemCart = id => {
+  const cartItems = getLocalStorage()
+  const newCartItems = cartItems.filter(item => item.id !== id)
+  setLocalStorage(newCartItems)
+}
+
+cartListGoods.addEventListener('click',(e) => {
+ if(e.target.matches('.btn-delete')){
+    deleteItemCart(e.target.dataset.id)
+    renderCart()
+ }
+})
 
 //блокировка скролла
 const disableScrool = () => {
@@ -70,6 +114,7 @@ const closeModal = document.querySelector('.cart__btn-close')
 subheaderCart.addEventListener('click',() => {
   modal.classList.add('cart-overlay-open')
   disableScrool()
+  renderCart()
 })
 
 closeModal.addEventListener('click',() => {
@@ -106,9 +151,11 @@ const getGoods = (callback,prop,value) => {
     console.log('Вызов даты:',data)
     // стало:добавилось условие и фильтр по категориям
     if(value){
+      console.log('value',value)
       callback(data.filter(item => item[prop] === value))
     } else {
-      callback(data)
+      // console.log('callback(data)',callback(data))
+      callback(data.filter(item => item[prop] = value))
     }
 
     try{
@@ -194,13 +241,15 @@ try{
   }
 
   window.addEventListener('hashchange',() => {
-    hash = location.hash.substr(1)
+    hash = location.hash.substring(1)
     getGoods(renderGoodsList,'category',hash)
     changeTitle()
   })
 
   changeTitle()
-  getGoods(renderGoodsList,hash)/* ключевая функция с нее идет цепочка,когда она получит данные с date то заработает */
+document.querySelector('.navigation__link').addEventListener('click',() => {
+     getGoods(renderGoodsList,hash)/* ключевая функция с нее идет цепочка,когда она получит данные с date то заработает */
+}) 
 
 } catch(err){
   console.warn(err)
@@ -228,7 +277,10 @@ const generateList = data => data.reduce((html,item,i) => html +
 `<li class="card-good__select-item" data-id="${i}">${item}</li>`,'')
 
 
-const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
+const renderCardGood = ([{id,brand,name,cost,color,sizes,photo}]) => {
+
+const data = {brand,name,cost,id}
+
     cardGoodImage.src = `goods-image/${photo}`
     cardGoodImage.alt = `${brand} ${name}`
     cardGoodBrand.textContent = brand
@@ -248,6 +300,30 @@ const renderCardGood = ([{brand,name,cost,color,sizes,photo}]) => {
     } else {
       cardGoodSizes.style.display = "none"
     }
+
+if(getLocalStorage().some(item => item.id === id)){
+  cardGoodBuy.classList.add('delete')
+  cardGoodBuy.textContent = "Удалить из корзины"
+}
+
+    cardGoodBuy.addEventListener('click',() => {
+  if(cardGoodBuy.classList.contains('delete')){
+    deleteItemCart(id)
+    cardGoodBuy.classList.remove('delete')
+    cardGoodBuy.textContent = "Добавить в корзину"
+    return
+  }
+  if(color) data.color = cardGoodColor.textContent
+  if(sizes) data.sizes = cardGoodSizes.textContent
+
+  cardGoodBuy.classList.add('delete')
+  cardGoodBuy.textContent = "Удалить из корзины"
+
+  const cardData = getLocalStorage()
+  cardData.push(data)
+  setLocalStorage(cardData)
+})
+
 }
 
 cardGoodSelectWrapper.forEach(item => {
